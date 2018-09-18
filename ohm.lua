@@ -96,7 +96,7 @@ local delete = function(self, db, attributes)
 end
 
 local to_index = function(self, field, value)
-	return string.format("%s:indices:%s:%s", self.name, field, value)
+	return string.format("nohm:index:%s:%s:%s", self.name, field, value)
 end
 
 local to_indices = function(self, field, value)
@@ -110,7 +110,8 @@ local to_indices = function(self, field, value)
 end
 
 local fetch = function(self, db, id)
-	local key = self.name .. ":" .. id
+
+	local key = self.prefix .. ":" .. self.name .. ":" .. id
 
 	local values = db:call("HMGET", key, unpack(self.attributes))
 	local record = util.zip(self.attributes, values)
@@ -137,8 +138,8 @@ local find = function(self, db, filters)
 end
 
 local with = function(self, db, att, val)
-	local key = string.format("%s:uniques:%s", self.name, att)
-	local id = db:call("HGET", key, val)
+	local key = string.format("nohm:uniques:%s:%s:%s", self.name, att, val)
+	local id = db:call("GET", key)
 
 	return id and fetch(self, db, id)
 end
@@ -222,6 +223,7 @@ local model = function(name, schema)
 	setmetatable(self, {__index = methods})
 
 	self.name = name
+	self.prefix = schema.prefix
 	self.attributes = schema.attributes or {}
 	self.indices = schema.indices or {}
 	self.uniques = schema.uniques or {}

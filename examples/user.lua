@@ -1,6 +1,7 @@
 local ohm = require("ohm")
 
 return ohm.model("User", {
+
 	attributes = {
 		"lname",
 		"fname",

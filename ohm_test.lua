@@ -8,7 +8,7 @@ local attributes = {
 	full_name = "John Doe",
 }
 
-local db = resp.new("localhost", 6379)
+local db = resp.new("127.0.0.1", 6379)
 
 -- setup
 assert(db:call("FLUSHDB"))
