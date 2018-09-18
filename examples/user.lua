@@ -1,7 +1,7 @@
-local ohm = require("ohm")
+local ohm = dofile("./ohm.lua")
 
 return ohm.model("User", {
-
+	
 	attributes = {
 		"lname",
 		"fname",

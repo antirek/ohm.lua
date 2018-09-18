@@ -1,9 +1,9 @@
 local resp = require("resp")
-local ohm = dofile('./ohm.lua')
+local ohm = require('ohm')
 local inspect = require("inspect")
 
 local ivr = ohm.model('Ivr', {
-    prefix = 'nohm:hash',
+    prefix = 'nohm',
 
     attributes = {
         "title",
@@ -21,7 +21,7 @@ local ivr = ohm.model('Ivr', {
 local start_time = os.clock()
 print(start_time);
 
-local db = resp.new("p20.mobilon.ru", 6379)
+local db = resp.new("localhost", 6379)
 print(os.clock() - start_time);
 
 

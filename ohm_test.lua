@@ -8,7 +8,7 @@ local attributes = {
 	full_name = "John Doe",
 }
 
-local db = resp.new("127.0.0.1", 6379)
+local db = resp.new("localhost", 6379)
 
 -- setup
 assert(db:call("FLUSHDB"))
@@ -68,10 +68,10 @@ assert(values[2] == "Jane")
 assert(values[3] == "Cruz")
 
 -- case 3.2: verify indices
-local indices = db:call("SMEMBERS", "User:indices:full_name:Jane Cruz")
+local indices = db:call("SMEMBERS", "User:index:full_name:Jane Cruz")
 assert(indices[1] == "1")
 
-local _indices = db:call("SMEMBERS", "User:1:_indices")
+local _indices = db:call("SMEMBERS", "User:1:_index")
 assert(_indices[1] == "User:indices:full_name:Jane Cruz")
 
 -- case 3.3: verify uniques
