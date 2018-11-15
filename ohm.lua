@@ -189,6 +189,9 @@ local fetch = function(self, db, id)
     --local key = self.prefix .. ":hash:" .. self.name .. ":" .. id
 
     local values = db:call("HMGET", key, unpack(self.attributes))
+    if #values == 0 then
+        return nil
+    end
     local record = util.zip(self.attributes, values)
     for attribute, value in pairs(record) do
         record[attribute] = parseType(self, attribute, value)
