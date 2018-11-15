@@ -1,5 +1,5 @@
 package = "ohm"
-version = "0.1-1"
+version = "0.1.1-1"
 
 source = {
   url = "git://github.com/antirek/ohm.lua.git",
