@@ -197,7 +197,6 @@ local fetch = function(self, db, id)
         record[attribute] = parseType(self, attribute, value)
     end
     record.id = id
-    record._id = id
 
     return record
 end
