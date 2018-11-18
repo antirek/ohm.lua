@@ -37,11 +37,12 @@ local uniques = cmsgpack.unpack(ARGV[4])
 
 local function save(model, attrs)
 	if model.id == nil then
-		model.id = redis.call("INCR",  model.name .. ":id")
+		model.id = redis.call("INCR",  model.prefix .. ":hash:" .. model.name .. ":id")
 	end
-	model.key =  model.name .. ":" .. model.id
+	model.key = string.format("%s:hash:%s:%s", model.prefix, model.name, model.id)
+	--model.key =  model.prefix .. ":" .. model.name .. ":" .. model.id
 
-	redis.call("SADD",  model.name .. ":all", model.id)
+	redis.call("SADD",  model.prefix .. ":hash:" .. model.name .. ":all", model.id)
 	redis.call("DEL", model.key)
 
 	if math.mod(#attrs, 2) == 1 then
@@ -56,7 +57,7 @@ end
 local function index(model, indices)
 	for field, enum in pairs(indices) do
 		for _, val in ipairs(enum) do
-			local key =  model.name .. ":indices:" .. field .. ":" .. tostring(val)
+			local key =  model.prefix .. ":index:" .. model.name .. ":" .. field .. ":" .. tostring(val)
 
 			redis.call("SADD", model.key .. ":_indices", key)
 			redis.call("SADD", key, model.id)
@@ -76,7 +77,7 @@ end
 
 local function unique(model, uniques)
 	for field, value in pairs(uniques) do
-		local key =  model.name .. ":uniques:" .. field
+		local key =  model.prefix .. ":uniques:" .. model.name .. ":" .. field
 
 		redis.call("HSET", model.key .. ":_uniques", key, value)
 		redis.call("HSET", key, value, model.id)
@@ -96,7 +97,7 @@ local function verify(model, uniques)
 	local duplicates = {}
 
 	for field, value in pairs(uniques) do
-		local key = model.name .. ":uniques:" .. field
+		local key = model.prefix .. ":uniques:" .. model.name .. ":" .. field
 		local id = redis.call("HGET", key, tostring(value))
 
 		if id and id ~= tostring(model.id) then

@@ -37,7 +37,7 @@ local function remove_uniques(model, uniques)
 	local memo = model.key .. ":_uniques"
 
 	for field, _ in pairs(uniques) do
-		local key = model.name .. ":uniques:" .. field
+		local key = model.prefix .. ":uniques:" .. model.name .. ":" .. field
 
 		redis.call("HDEL", key, redis.call("HGET", memo, key))
 		redis.call("HDEL", memo, key)
@@ -60,7 +60,7 @@ local function delete(model)
 		model.key
 	}
 
-	redis.call("SREM", model.name .. ":all", model.id)
+	redis.call("SREM", model.prefix .. ":hash:" .. model.name .. ":all", model.id)
 	redis.call("DEL", unpack(keys))
 end
 
