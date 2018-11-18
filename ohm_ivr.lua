@@ -1,6 +1,28 @@
-local resp = require("resp")
+local redis = require("redis")
 local ohm = require('ohm')
 local inspect = require("inspect")
+
+
+local resp_over_redis  = function (conn)
+    return {
+        call = function(this, method, key, ...)
+            print(method, key, arg);
+            if arg.n~=0 then
+                return conn[method:lower()](conn, key, arg)
+            else
+                return conn[method:lower()](conn, key)
+            end
+        end
+    }
+end
+
+local function dbConn(params)
+    return resp_over_redis(redis.connect(params.host, params.port))
+end
+
+
+
+
 
 local ivr = ohm.model('Ivr', {
     prefix = 'nohm',
@@ -21,7 +43,7 @@ local ivr = ohm.model('Ivr', {
 local start_time = os.clock()
 print(start_time);
 
-local db = resp.new("localhost", 6379)
+local db = dbConn({host = "localhost", port = 6379});
 print(os.clock() - start_time);
 
 

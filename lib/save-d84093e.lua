@@ -37,12 +37,11 @@ local uniques = cmsgpack.unpack(ARGV[4])
 
 local function save(model, attrs)
 	if model.id == nil then
-		model.id = redis.call("INCR", model.name .. ":id")
+		model.id = redis.call("INCR",  model.name .. ":id")
 	end
+	model.key =  model.name .. ":" .. model.id
 
-	model.key = model.name .. ":" .. model.id
-
-	redis.call("SADD", model.name .. ":all", model.id)
+	redis.call("SADD",  model.name .. ":all", model.id)
 	redis.call("DEL", model.key)
 
 	if math.mod(#attrs, 2) == 1 then
@@ -57,7 +56,7 @@ end
 local function index(model, indices)
 	for field, enum in pairs(indices) do
 		for _, val in ipairs(enum) do
-			local key = model.name .. ":indices:" .. field .. ":" .. tostring(val)
+			local key =  model.name .. ":indices:" .. field .. ":" .. tostring(val)
 
 			redis.call("SADD", model.key .. ":_indices", key)
 			redis.call("SADD", key, model.id)
@@ -77,7 +76,7 @@ end
 
 local function unique(model, uniques)
 	for field, value in pairs(uniques) do
-		local key = model.name .. ":uniques:" .. field
+		local key =  model.name .. ":uniques:" .. field
 
 		redis.call("HSET", model.key .. ":_uniques", key, value)
 		redis.call("HSET", key, value, model.id)

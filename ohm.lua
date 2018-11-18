@@ -120,7 +120,7 @@ local UNIQUE_INDEX_VIOLATION = "UniqueIndexViolation: (%w+)"
 
 local save = function(self, db, attributes)
     local features = {
-        name = self.name
+        name = self.prefix .. ":" .. self.name
     }
 
     if attributes.id then
@@ -149,12 +149,12 @@ end
 
 local delete = function(self, db, attributes)
     local features = {
-        name = self.name
+        name = self.prefix .. ":" .. self.name
     }
 
     if attributes.id then
         features.id = attributes.id
-        features.key = self.name .. ':' .. attributes.id
+        features.key = self.prefix .. ":" .. self.name .. ':' .. attributes.id
     end
 
     local uniques = extract_uniques(self, attributes)
@@ -170,7 +170,7 @@ local delete = function(self, db, attributes)
 end
 
 local to_index = function(self, field, value)
-    return string.format("%s:index:%s:%s:%s", self.prefix, self.name, field, value)
+    return string.format("%s:%s:indices:%s:%s", self.prefix, self.name, field, value)
 end
 
 local to_indices = function(self, field, value)
@@ -185,7 +185,7 @@ end
 
 local fetch = function(self, db, id)
 
-    local key = string.format("%s:hash:%s:%s", self.prefix, self.name, id)
+    local key = string.format("%s:%s:%s", self.prefix, self.name, id)
     --local key = self.prefix .. ":hash:" .. self.name .. ":" .. id
 
     local values = db:call("HMGET", key, unpack(self.attributes))
@@ -210,16 +210,18 @@ local find = function(self, db, filters)
         end, keys)
     end
 
+    print(inspect(keys))
     local ids = db:call("SINTER", unpack(keys))
 
+    print(inspect(ids))
     return util.map(ids, function(_, id)
         return fetch(self, db, id)
     end)
 end
 
 local with = function(self, db, att, val)
-    local key = string.format("%s:uniques:%s:%s:%s", self.prefix, self.name, att, val)
-    local id = db:call("GET", key)
+    local key = string.format("%s:%s:uniques:%s", self.prefix, self.name, att)
+    local id = db:call("HGET", key, val)
 
     return id and fetch(self, db, id)
 end
