@@ -14,14 +14,6 @@ local types = {
 -- @utility auxiliary functions
 local util = {}
 
-local parseString = function(value)
-    return value;
-end
-
-local parseNumber = function(value)
-    return value;
-end
-
 local parseBoolean = function(value)
     if value == 'true' then
         return true;
@@ -52,11 +44,11 @@ local getTypeParser = function(self, attribute)
     if type == types.TYPE_BOOLEAN then
         return parseBoolean;
     elseif type == types.TYPE_NUMBER then
-        return parseNumber;
+        return tonumber;
     elseif type == types.TYPE_JSON then
         return parseJson;
     else
-        return parseString;
+        return tostring;
     end
 end
 
